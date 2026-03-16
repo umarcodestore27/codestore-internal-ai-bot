@@ -1,6 +1,10 @@
 import streamlit as st
-import ollama
+from openai import OpenAI
 
+client = OpenAI(
+    api_key=st.secrets["DEEPSEEK_API_KEY"],
+    base_url="https://api.deepseek.com"
+)
 # ---------------------------
 # Page Config
 # ---------------------------
@@ -84,15 +88,21 @@ for i, msg in enumerate(st.session_state.messages):
                 with st.chat_message("assistant"):
                     placeholder = st.empty()
 
-                    response = ollama.chat(
-                        model="deepseek-coder",
-                        messages=st.session_state.messages[:i+1],
-                        stream=True
-                    )
+                    # response = ollama.chat(
+                    #     model="deepseek-coder",
+                    #     messages=st.session_state.messages[:i+1],
+                    #     stream=True
+                    # )
+                    response = client.chat.completions.create(
+                          model="deepseek-chat",
+                          messages=st.session_state.messages,
+                          stream=True
+                      )
 
                     for chunk in response:
-                        token = chunk["message"]["content"]
-                        full_response += token
+                        if chunk.choices[0].delta.content:
+                            token = chunk.choices[0].delta.content
+                            full_response += token
                         placeholder.markdown(full_response)
 
                 st.session_state.messages.insert(
