@@ -126,7 +126,6 @@ for i, msg in enumerate(st.session_state.messages):
 # ---------------------------
 # Chat Input
 # ---------------------------
-
 with st.form("chat_form", clear_on_submit=True):
 
     col_plus, col_input, col_send = st.columns([1,8,1])
@@ -176,10 +175,13 @@ if send and prompt:
             placeholder = st.empty()
 
             for chunk in response:
-                if chunk.choices[0].delta.content:
+                try:
                     token = chunk.choices[0].delta.content
-                    full_response += token
-                    placeholder.markdown(full_response)
+                    if token:
+                        full_response += token
+                        placeholder.markdown(full_response)
+                except:
+                    pass
 
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
