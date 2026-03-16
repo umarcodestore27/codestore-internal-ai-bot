@@ -82,22 +82,15 @@ for i, msg in enumerate(st.session_state.messages):
 
                 st.session_state.edit_index = None
 
-                full_response = ""
-
                 with st.chat_message("assistant"):
-                    placeholder = st.empty()
 
                     response = client.chat.completions.create(
-                        model="deepseek-coder",
-                        messages=st.session_state.messages[:i+1],
-                        stream=True
+                        model="deepseek-chat",
+                        messages=st.session_state.messages[:i+1]
                     )
 
-                    for chunk in response:
-                        if chunk.choices[0].delta.content:
-                            token = chunk.choices[0].delta.content
-                            full_response += token
-                            placeholder.markdown(full_response)
+                    full_response = response.choices[0].message.content
+                    st.markdown(full_response)
 
                 st.session_state.messages.insert(
                     i+1,
@@ -132,15 +125,8 @@ with st.form("chat_form", clear_on_submit=True):
 
     with col_plus:
         with st.popover("➕"):
-            uploaded_doc = st.file_uploader(
-                "Upload document",
-                type=["pdf", "docx", "txt"]
-            )
-
-            uploaded_img = st.file_uploader(
-                "Upload image",
-                type=["png", "jpg", "jpeg"]
-            )
+            st.file_uploader("Upload document", type=["pdf", "docx", "txt"])
+            st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
 
     with col_input:
         prompt = st.text_input(
@@ -162,26 +148,16 @@ if send and prompt:
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    full_response = ""
-
     try:
         response = client.chat.completions.create(
             model="deepseek-chat",
-            messages=st.session_state.messages,
-            stream=True
+            messages=st.session_state.messages
         )
 
-        with st.chat_message("assistant"):
-            placeholder = st.empty()
+        full_response = response.choices[0].message.content
 
-            for chunk in response:
-                try:
-                    token = chunk.choices[0].delta.content
-                    if token:
-                        full_response += token
-                        placeholder.markdown(full_response)
-                except:
-                    pass
+        with st.chat_message("assistant"):
+            st.markdown(full_response)
 
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
