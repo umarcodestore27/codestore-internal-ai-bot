@@ -1,9 +1,11 @@
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 
-client = OpenAI(
-    api_key=st.secrets["DEEPSEEK_API_KEY"],
-    base_url="https://api.deepseek.com"
+# ---------------------------
+# Groq Client
+# ---------------------------
+client = Groq(
+    api_key=st.secrets["GROQ_API_KEY"]
 )
 
 # ---------------------------
@@ -85,7 +87,7 @@ for i, msg in enumerate(st.session_state.messages):
                 with st.chat_message("assistant"):
 
                     response = client.chat.completions.create(
-                        model="deepseek-chat",
+                        model="llama3-8b-8192",
                         messages=st.session_state.messages[:i+1]
                     )
 
@@ -119,9 +121,6 @@ for i, msg in enumerate(st.session_state.messages):
 # ---------------------------
 # Chat Input
 # ---------------------------
-# ---------------------------
-# Chat Input
-# ---------------------------
 
 col_plus, col_input, col_send = st.columns([1,8,1])
 
@@ -152,7 +151,7 @@ if send and prompt:
 
     try:
         response = client.chat.completions.create(
-            model="deepseek-chat",
+            model="llama3-8b-8192",
             messages=st.session_state.messages
         )
 
