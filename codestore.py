@@ -88,7 +88,7 @@ for i, msg in enumerate(st.session_state.messages):
                     placeholder = st.empty()
 
                     response = client.chat.completions.create(
-                        model="deepseek-chat",
+                        model="deepseek-coder",
                         messages=st.session_state.messages[:i+1],
                         stream=True
                     )
@@ -165,23 +165,27 @@ if send and prompt:
 
     full_response = ""
 
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=st.session_state.messages,
-        stream=True
-    )
+    try:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=st.session_state.messages,
+            stream=True
+        )
 
-    with st.chat_message("assistant"):
-        placeholder = st.empty()
+        with st.chat_message("assistant"):
+            placeholder = st.empty()
 
-        for chunk in response:
-            if chunk.choices[0].delta.content:
-                token = chunk.choices[0].delta.content
-                full_response += token
-                placeholder.markdown(full_response)
+            for chunk in response:
+                if chunk.choices[0].delta.content:
+                    token = chunk.choices[0].delta.content
+                    full_response += token
+                    placeholder.markdown(full_response)
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": full_response}
-    )
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
+
+    except Exception as e:
+        st.error(f"API Error: {str(e)}")
 
     st.rerun()
