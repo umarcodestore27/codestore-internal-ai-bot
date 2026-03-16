@@ -154,14 +154,21 @@ if send and prompt:
             messages=st.session_state.messages
         )
 
-        full_response = response.choices[0].message.content
+        # DEBUG: show full API response
+        st.write("API RAW RESPONSE:", response)
 
-        with st.chat_message("assistant"):
-            st.markdown(full_response)
+        if response and response.choices:
+            full_response = response.choices[0].message.content
 
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response}
-        )
+            with st.chat_message("assistant"):
+                st.markdown(full_response)
+
+            st.session_state.messages.append(
+                {"role": "assistant", "content": full_response}
+            )
+
+        else:
+            st.error("No response returned from DeepSeek.")
 
     except Exception as e:
         st.error(f"API Error: {str(e)}")
