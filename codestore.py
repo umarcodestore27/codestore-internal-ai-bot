@@ -119,24 +119,26 @@ for i, msg in enumerate(st.session_state.messages):
 # ---------------------------
 # Chat Input
 # ---------------------------
-with st.form("chat_form", clear_on_submit=True):
+# ---------------------------
+# Chat Input
+# ---------------------------
 
-    col_plus, col_input, col_send = st.columns([1,8,1])
+col_plus, col_input, col_send = st.columns([1,8,1])
 
-    with col_plus:
-        with st.popover("➕"):
-            st.file_uploader("Upload document", type=["pdf", "docx", "txt"])
-            st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
+with col_plus:
+    with st.popover("➕"):
+        st.file_uploader("Upload document", type=["pdf","docx","txt"])
+        st.file_uploader("Upload image", type=["png","jpg","jpeg"])
 
-    with col_input:
-        prompt = st.text_input(
-            "Prompt",
-            placeholder="Ask me anything...",
-            label_visibility="collapsed"
-        )
+with col_input:
+    prompt = st.text_input(
+        "Prompt",
+        placeholder="Ask me anything...",
+        label_visibility="collapsed"
+    )
 
-    with col_send:
-        send = st.form_submit_button("⬆️")
+with col_send:
+    send = st.button("⬆️")
 
 # ---------------------------
 # Send message
@@ -154,23 +156,14 @@ if send and prompt:
             messages=st.session_state.messages
         )
 
-        # DEBUG: show full API response
-        st.write("API RAW RESPONSE:", response)
+        full_response = response.choices[0].message.content
 
-        if response and response.choices:
-            full_response = response.choices[0].message.content
+        with st.chat_message("assistant"):
+            st.markdown(full_response)
 
-            with st.chat_message("assistant"):
-                st.markdown(full_response)
-
-            st.session_state.messages.append(
-                {"role": "assistant", "content": full_response}
-            )
-
-        else:
-            st.error("No response returned from DeepSeek.")
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
 
     except Exception as e:
-        st.error(f"API Error: {str(e)}")
-
-    st.rerun()
+        st.error(str(e))
