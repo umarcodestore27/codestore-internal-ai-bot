@@ -103,7 +103,10 @@ button {height: 40px !important;}
     # ---------------------------
     def user_input(message, history):
         history = history or []
-        history.append((message, ""))
+
+        # Add user message + loading placeholder
+        history.append((message, "⏳ Thinking..."))
+
         return "", history
 
 
@@ -129,6 +132,7 @@ button {height: 40px !important;}
             if not response.strip():
                 response = "⚠️ Empty response"
 
+            # Replace loading with actual response
             history[-1] = (user_message, response)
 
             return history
@@ -140,13 +144,17 @@ button {height: 40px !important;}
 
 
     # ---------------------------
-    # Actions (✅ INSIDE BLOCK)
+    # Actions
     # ---------------------------
-    send.click(user_input, [msg, chatbot], [msg, chatbot]).then(
+    send.click(
+        user_input, [msg, chatbot], [msg, chatbot]
+    ).then(
         bot_reply, [chatbot, file], chatbot
     )
 
-    msg.submit(user_input, [msg, chatbot], [msg, chatbot]).then(
+    msg.submit(
+        user_input, [msg, chatbot], [msg, chatbot]
+    ).then(
         bot_reply, [chatbot, file], chatbot
     )
 
@@ -156,4 +164,4 @@ button {height: 40px !important;}
 # ---------------------------
 # Launch
 # ---------------------------
-demo.launch(debug=True)
+demo.queue().launch(debug=True)
